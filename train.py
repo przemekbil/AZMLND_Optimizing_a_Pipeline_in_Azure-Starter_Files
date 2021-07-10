@@ -39,6 +39,9 @@ def clean_data(data):
     x_df["month"] = x_df.month.map(months)
     x_df["day_of_week"] = x_df.day_of_week.map(weekdays)
     x_df["poutcome"] = x_df.poutcome.apply(lambda s: 1 if s == "success" else 0)
+    
+    # remove duration column
+    x_df = x_df.drop("duration", axis=1)    
 
     y_df = x_df.pop("y").apply(lambda s: 1 if s == "yes" else 0)
     
