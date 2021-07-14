@@ -50,6 +50,7 @@ The best run was achieved with C= 4.217379487255968 and max_iter=400 with report
 ## AutoML
 
 The best performing model in the AuroML run was VotingEnsemble with reported 0.9021 accuracy. According to the best performing model, top 4 features (columns) with the largest importance were: nr.employed, cons.conf.idx, eurobor3m, contact_cellular
+
 ![image](https://user-images.githubusercontent.com/77756713/125700079-0832e013-d41e-4041-9fcd-0499aeee78c3.png)
 
 
