@@ -2,7 +2,7 @@ from sklearn.linear_model import LogisticRegression
 import argparse
 import os
 import numpy as np
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, log_loss
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
@@ -74,6 +74,12 @@ def main():
 
     accuracy = model.score(x_test, y_test)
     run.log("Accuracy", np.float(accuracy))
+
+    model_log_loss = log_loss(y_test, model.predict_proba(x_test))
+    run.log("Log_loss", np.float(model_log_loss))
+
+    ms_error = mean_squared_error(y_test, model.predict(x_test))
+    run.log("ms_error", np.float(ms_error))
 
     os.makedirs('outputs', exist_ok=True)
     joblib.dump(model, './outputs/model.pkl')
