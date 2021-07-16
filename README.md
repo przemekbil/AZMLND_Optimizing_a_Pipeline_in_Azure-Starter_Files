@@ -32,7 +32,7 @@ Additionally, column “Duration” has been removed from the dataset as it’s 
 
 ## Scikit-learn Pipeline
 
-### Model
+### Alghoritm
 
 It the Scikit-learn Pipeline, I used LogisticRegression classification algorithm from sklearn library. 2 parameters have been adjusted through HyperDrive: inverse of regularization strength (parameter C) and Maximum number of iterations taken for the solver to converge (max_iter).
 
@@ -67,7 +67,7 @@ The best run was achieved with C= 4.217379487255968 and max_iter=400 with report
 
 ![image](https://user-images.githubusercontent.com/77756713/125952629-a3c44167-472c-4d61-a6f1-6bc300b02508.png)
 
-From the confusion matrix above, we can see that the model is biased towards "No" nswers: it is very good at predicting "0" when the real label is "0" (98.73%) but it's very bad at predicting "1s": only 20.75% "Yes" answers were predicted correctly.
+From the confusion matrix above, we can see that the model is biased towards "No" nswers: it is very good at predicting "0" not only when the real label is "0" (98.73%) but also when the real label should be "1" (79.25% "Yes" answers has been predisted as "No"). It's very bad however at predicting "1s": only 20.75% "Yes" answers were predicted correctly.
 
 I have compared this model's performance with a Dummy classifier from ```sklearn.dummy``` library:
 ```
@@ -84,7 +84,11 @@ Although the accuracy of my best model (0.9065) seems good on the face value, it
 
 ## AutoML
 
-The best performing model in the AuroML run was VotingEnsemble with reported 0.9021 accuracy.
+Great function of AutoML is the automatic check for the  issues with the data set used for training. This is to alert the user about the potentail model inacuracies and to allow to take the corrective actions. In my example, I was alerted about the problem with Class balancing: the size of the "Yes" class is only 2738, which is about 11% of the total data set.
+
+The other 2 check for "Missing feature values imputation" and "High cardinality feature detection" passed without any alerts.
+
+The highest scoring model in the AutoML run was VotingEnsemble with reported 0.9021 accuracy. The VotingEnsemble was constructed out of previous best performing unique runs, with individual weghts assigned to each of them to optimize the overal performance. The inner estimaters, their weights, Iteration number and original metrics are listed in the table below:
 
 
 ITERATION | Algorithm | Weight | Metric |
@@ -105,15 +109,26 @@ According to the best performing model, top 4 features (columns) with the larges
 ![image](https://user-images.githubusercontent.com/77756713/125700079-0832e013-d41e-4041-9fcd-0499aeee78c3.png)
 
 
-The confusion table for this run is presented below:
+The confusion table for this model is presented below:
 
 ![image](https://user-images.githubusercontent.com/77756713/125952917-8c13085b-c495-41bd-97b2-918bf462659c.png)
+
+Similarly to the model developed through the Scikit-learn Pipeline, AutoML model is great at predicting "No's" (98.58% of the "No" answers were predicted correctly) but is doesn't do great job at correctly predicting "Yes" answers: 76.44% percent of the original "Yes" answers were predicted as "No".
 
 
 
 ## Pipeline comparison
 
-The reported accuracy of both Scikit-learn Pipeline (0.9065) and Auto ML (0.9021) pipelines are very similar with no practical difference between their performance.
+### Performance
+
+The reported accuracy of models developed through Scikit-learn Pipeline (0.9065) and Auto ML (0.9021) pipelines are very similar with no practical difference between their performance and are just over the accuracy of the Dummy classifier. Both pipelines handled poorly imbalanced data set and produced models that are heavily skewed towards predicting "No" answers.
+
+### Model acquisition
+
+Through the Scikit-learn Pipeline we are using only one algorithm which we optimize using differen hyperparameters: regularization strength (parameter C) and Maximum number of iterations taken for the solver to converge (max_iter).
+
+AutoML on the other hand, used 13 different algorithms (including LogisticRegression, although non of it's run's made it to top 15) in 57 separate runs executed with different hyperparameters and the final model was constructed as a combination of 8 best performing runs. This is typically more robust approach, which tends to help to improve model generalization over a single estimator.
+
 
 ## Future work
 
