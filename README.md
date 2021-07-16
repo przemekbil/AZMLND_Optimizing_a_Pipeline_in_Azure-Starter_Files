@@ -53,7 +53,7 @@ There are 3 early termination policies in Azure ML that can bu used to terminate
 * BanditPolicy - Defines an early termination policy based on slack criteria, and a frequency and delay interval for evaluation
 * NoTerminationPolicy class can be used to specify that no early termination policy will be applied
 
-For early stopping policy, I selected a BanditPolicy class. This policy compares the current training run with the best performing run and terminates it if it’s performance metric drops below calculated threshold. The main benefit of using this policy comparing to the other 2 policies is that the current runs are terminated after comparing with the best performing run. If the current run performance drops greatly below the best run's perormance, it will be terminated. 
+For early stopping policy, I selected a BanditPolicy class. This policy compares the current training run with the best performing run and terminates it if it’s performance metric drops below calculated threshold. The main benefit of using this policy comparing to the other 2 policies is that the current runs are terminated after comparing with the best performing run. If the current run performance drops greatly below the best run's performance, it will be terminated. 
 
 The parameters I used in my pipeline:
 ```
@@ -67,7 +67,7 @@ The best run was achieved with C= 4.217379487255968 and max_iter=400 with report
 
 ![image](https://user-images.githubusercontent.com/77756713/125952629-a3c44167-472c-4d61-a6f1-6bc300b02508.png)
 
-From the confusion matrix above, we can see that the model is biased towards "No" nswers: it is very good at predicting "0" not only when the real label is "0" (98.73%) but also when the real label should be "1" (79.25% "Yes" answers has been predisted as "No"). It's very bad however at predicting "1s": only 20.75% "Yes" answers were predicted correctly.
+From the confusion matrix above, we can see that the model is biased towards "No" answers: it is very good at predicting "0" not only when the real label is "0" (98.73%) but also when the real label should be "1" (79.25% "Yes" answers has been predicted as "No"). It's very bad however at predicting "1s": only 20.75% "Yes" answers were predicted correctly.
 
 I have compared this model's performance with a Dummy classifier from ```sklearn.dummy``` library:
 ```
@@ -79,16 +79,16 @@ print("Dummy clasifier accuracy: ",dummy_clf.score(x_test, y_test))
 Dummy clasifier accuracy:  0.8841951930080116
 ```
 
-Although the accuracy of my best model (0.9065) seems good on the face value, it is only marginally better than the Dummy model (0.8841) which is not great news considering how much effort was put into developing it. The most likely reason for it's poor performance and unexpectedly high accuracy of the Dummy clasifier is the fact that the data set is heavy imbalanced towards "No" (more about this in "Future Work" paragraph below).
+Although the accuracy of my best model (0.9065) seems good on the face value, it is only marginally better than the Dummy model (0.8841) which is not great news considering how much effort was put into developing it. The most likely reason for it's poor performance and unexpectedly high accuracy of the Dummy classifier is the fact that the data set is heavy imbalanced towards "No" (more about this in "Future Work" paragraph below).
 
 
 ## AutoML
 
-Great function of AutoML is the automatic check for the  issues with the data set used for training. This is to alert the user about the potentail model inacuracies and to allow to take the corrective actions. In my example, I was alerted about the problem with Class balancing: the size of the "Yes" class is only 2738, which is about 11% of the total data set.
+Great function of AutoML is the automatic check for the issues with the data set used for training. This is to alert the user about the potential model inaccuracies and to allow to take the corrective actions. In my example, I was alerted about the problem with Class balancing: the size of the "Yes" class is only 2738, which is about 11% of the total data set.
 
 The other 2 check for "Missing feature values imputation" and "High cardinality feature detection" passed without any alerts.
 
-The highest scoring model in the AutoML run was VotingEnsemble with reported 0.9021 accuracy. The VotingEnsemble was constructed out of previous best performing unique runs, with individual weghts assigned to each of them to optimize the overal performance. The inner estimaters, their weights, Iteration number and original metrics are listed in the table below:
+The highest scoring model in the AutoML run was VotingEnsemble with reported 0.9021 accuracy. The VotingEnsemble was constructed out of previous best performing unique runs, with individual weights assigned to each of them to optimize the overall performance. The inner estimators, their weights, Iteration number and original metrics are listed in the table below:
 
 
 ITERATION | Algorithm | Weight | Metric |
@@ -125,7 +125,7 @@ The reported accuracy of models developed through Scikit-learn Pipeline (0.9065)
 
 ### Model acquisition
 
-Through the Scikit-learn Pipeline we are using only one algorithm which we optimize using differen hyperparameters: regularization strength (parameter C) and Maximum number of iterations taken for the solver to converge (max_iter).
+Through the Scikit-learn Pipeline we are using only one algorithm which we optimize using different hyperparameters: regularization strength (parameter C) and Maximum number of iterations taken for the solver to converge (max_iter).
 
 AutoML on the other hand, used 13 different algorithms (including LogisticRegression, although non of it's run's made it to top 15) in 57 separate runs executed with different hyperparameters and the final model was constructed as a combination of 8 best performing runs. This is typically more robust approach, which tends to help to improve model generalization over a single estimator.
 
@@ -139,9 +139,9 @@ sns.countplot(y)
 ```
 ![image](https://user-images.githubusercontent.com/77756713/125700311-79a3027a-d274-48ce-b7e0-dff9fe3d9573.png)
 
-Model run in the separate Notebook with the same Hyperparameters as the best performing Scikit-learn Pipeline model reported slightly lower model accuracy (0.9018) but the analys of the precision and recall values for 0 ("No") and 1 ("Yes") highlighted the problem.
+Model run in the separate Notebook with the same Hyperparameters as the best performing Scikit-learn Pipeline model reported slightly lower model accuracy (0.9018) but the analysis of the precision and recall values for 0 ("No") and 1 ("Yes") confirmed the problem.
 
-the model is relatevely good at not labeling negative samples as positive (precision of "No" equal 0.91) and labeling negative samples as negative (recall of "No" equal 0.99) but not great at not labeling positive samples as negative (only 0.68) and very poor at finding all positive samples (recall of only 0.21). 
+The model is relatively good at not labelling negative samples as positive (precision of "No" equal 0.91) and labelling negative samples as negative (recall of "No" equal 0.99) but not great at not labelling positive samples as negative (only 0.68) and very poor at finding all positive samples (recall of only 0.21). 
 
 
 ```
@@ -162,7 +162,14 @@ The model accuracy is : 0.9017965525613013
    macro avg       0.79      0.60      0.63     24712
 weighted avg       0.88      0.90      0.88     24712
 ```
-It would seem, that because of the unbalanced dataset, model is great at predicting "No"s but not great at predicting "Yes" answers. Next generation of this model would have to tackle this problem.
+It would seem, that because of the unbalanced dataset, model is great at predicting "No"s but not great at predicting "Yes" answers. 
+
+To achieve better performing model, data used for training  should be balanced by either up-sampling the "Yes" Class or down-sampling the "No" class. Alternatively, wight column Could be added to cause rows in the data to be weighted up or down (to make the prevailing class seem less important).
+
+Another thing to try would be using other ```primary_metric``` attribute than ```accuracy``` in the ```AutoMLConfig``` class constructor. According to Microsoft AutoML documentation, ```AUC_weighted``` could be better choice in this case.
+
+Depending on the real-life application, we might want to optimize our model for different metrics: if our priority is model's precision (avoiding labeling false positives and false negatives) we could use ```average_precision_score_weighted``` or ```precision_score_weighted``` as our ```primary_metric``` attribute. 
+
 
 ## Proof of cluster clean up
 
