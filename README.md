@@ -40,7 +40,7 @@ The larger the regularization strength (smaller values of C parameter) the highe
 
 ### Parameter sampler
 
-There are 2 parameters sweeping modes available in Azure ML: Entire grid and Random Sweep. Grid sweep is exhaustive, tends to give slightly better results but is time consuming. Random sweep in contrast offers good results without taking as much time. For this project, I'm going for the Random sweep using ```RandomParameterSampler``` Class using the following search spaces:
+There are 2 parameters sweeping modes available in Azure ML: Entire grid and Random Sweep. Entire grid sweep is exhaustive, tends to give slightly better results but is time consuming. Random sweep in contrast offers good results without taking as much time. For this project, I'm going for the Random sweep using ```RandomParameterSampler``` Class using the following search spaces:
 
 * max_iter parameter will be selected out of 3 predefined values (100, 200, or 400) 
 * C parameter will be randomly pooled from the interval between exp(-10) to exp(10) using logunifrom distribution. Since the parameter C represents the inverse of the regularization strength, logunifrom distribution has been selected to attain distribution of regularization strength as close to uniform as possible.
@@ -63,7 +63,23 @@ would cause each run to be compared with the best performing run after each 5 al
 
 ### Performance
 
-The best run was achieved with C= 4.217379487255968 and max_iter=400 with reported Accuracy of 0.9065.
+The best run was achieved with C= 4.217379487255968 and max_iter=400 with reported Accuracy of 0.9065. The confusion matrix for this run is as follows:
+
+![image](https://user-images.githubusercontent.com/77756713/125952629-a3c44167-472c-4d61-a6f1-6bc300b02508.png)
+
+From the confusion matrix above, we can see that the model is biased towards "No" nswers: it is very good at predicting "0" when the real label is "0" (98.73%) but it's very bad at predicting "1s": only 20.75% "Yes" answers were predicted correctly.
+
+I have compared this model's performance with a Dummy classifier from ```sklearn.dummy``` library:
+```
+dummy_clf=DummyClassifier(strategy="most_frequent")
+
+dummy_clf.fit(x_train, y_train)
+
+print("Dummy clasifier accuracy: ",dummy_clf.score(x_test, y_test))
+Dummy clasifier accuracy:  0.8841951930080116
+```
+
+Although the accuracy of my best model (0.9065) seems good on the face value, it is only marginally better than the Dummy model (0.8841) which is not great news considering how much effort was put into developing it. The most likely reason for it's poor performance and unexpectedly high accuracy of the Dummy clasifier is the fact that the data set is heavy imbalanced towards "No" (more about this in "Future Work" paragraph below).
 
 
 ## AutoML
@@ -71,6 +87,12 @@ The best run was achieved with C= 4.217379487255968 and max_iter=400 with report
 The best performing model in the AuroML run was VotingEnsemble with reported 0.9021 accuracy. According to the best performing model, top 4 features (columns) with the largest importance were: nr.employed, cons.conf.idx, eurobor3m, contact_cellular
 
 ![image](https://user-images.githubusercontent.com/77756713/125700079-0832e013-d41e-4041-9fcd-0499aeee78c3.png)
+
+
+The confusion table for this run is presented below:
+
+![image](https://user-images.githubusercontent.com/77756713/125952917-8c13085b-c495-41bd-97b2-918bf462659c.png)
+
 
 
 ## Pipeline comparison
