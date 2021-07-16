@@ -32,17 +32,36 @@ Additionally, column “Duration” has been removed from the dataset as it’s 
 
 ## Scikit-learn Pipeline
 
+### Model
+
 It the Scikit-learn Pipeline, I used LogisticRegression classification algorithm from sklearn library. 2 parameters have been adjusted through HyperDrive: inverse of regularization strength (parameter C) and Maximum number of iterations taken for the solver to converge (max_iter).
 
 The larger the regularization strength (smaller values of C parameter) the higher the penalty for increasing the magnitude of parameters. This is to prevent overfitting the model to the train data and make it more general i.e. also applicable to the unseen test data.
 
-In the HyperDrive run, max_iter parameter was selected out of 3 values (100, 200, or 400) and the C parameter was pooled from the interval between exp(-10) to exp(10) using logunifrom distribution. Since the parameter C represents the inverse of the regularization strength, logunifrom distribution has been selected to attain distribution of regularization strength as close to uniform as possible.
+### Parameter sampler
 
-For early stopping policy, I selected a BanditPolicy class. This policy compares the current training run with the best performing run and terminates it if it’s performance metric drops below calculated threshold. The parameters I used in my pipeline:
+There are 2 parameters sweeping modes available in Azure ML: Entire grid and Random Sweep. Grid sweep is exhaustive, tends to give slightly better results but is time consuming. Random sweep in contrast offers good results without taking as much time. For this project, I'm going for the Random sweep using ```RandomParameterSampler``` Class using the following search spaces:
+
+* max_iter parameter will be selected out of 3 predefined values (100, 200, or 400) 
+* C parameter will be randomly pooled from the interval between exp(-10) to exp(10) using logunifrom distribution. Since the parameter C represents the inverse of the regularization strength, logunifrom distribution has been selected to attain distribution of regularization strength as close to uniform as possible.
+
+### Termination policy
+
+There are 3 early termination policies in Azure ML that can bu used to terminate runs with poor performing hyperparameters combinations and save computational resources:
+* MedianStoppingPolicy - Defines an early termination policy based on running averages of the primary metric of all runs
+* TruncationSelectionPolicy - Defines an early termination policy that cancels a given percentage of runs at each evaluation interval
+* BanditPolicy - Defines an early termination policy based on slack criteria, and a frequency and delay interval for evaluation
+* NoTerminationPolicy class can be used to specify that no early termination policy will be applied
+
+For early stopping policy, I selected a BanditPolicy class. This policy compares the current training run with the best performing run and terminates it if it’s performance metric drops below calculated threshold. The main benefit of using this policy comparing to the other 2 policies is that the current runs are terminated after comparing with the best performing run. If the current run performance drops greatly below the best run's perormance, it will be terminated. 
+
+The parameters I used in my pipeline:
 ```
 policy = BanditPolicy(slack_factor=0.1, evaluation_interval=5, delay_evaluation=10)
 ```
 would cause each run to be compared with the best performing run after each 5 algorithm runs (starting after first 10 runs) and if the run’s performance drops below 90% of current best run performance, then it would get terminated.
+
+### Performance
 
 The best run was achieved with C= 4.217379487255968 and max_iter=400 with reported Accuracy of 0.9065.
 
