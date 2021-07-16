@@ -84,7 +84,23 @@ Although the accuracy of my best model (0.9065) seems good on the face value, it
 
 ## AutoML
 
-The best performing model in the AuroML run was VotingEnsemble with reported 0.9021 accuracy. According to the best performing model, top 4 features (columns) with the largest importance were: nr.employed, cons.conf.idx, eurobor3m, contact_cellular
+The best performing model in the AuroML run was VotingEnsemble with reported 0.9021 accuracy.
+
+
+ITERATION | Algorithm | Weight | Metric |
+--- | --- | --- | --- |
+1 | maxabsscaler, xgboostclassifier | 0.4 | 0.9017 | 
+42 | sparsenormalizer,	lightgbmclassifier |	0.066666667 |	0.9011 |
+24|	sparsenormalizer,	lightgbmclassifier|	0.066666667|	0.9009|
+28|	maxabsscaler,	lightgbmclassifier|	0.066666667|	0.9009|
+40|	standardscalerwrapper,	xgboostclassifier|	0.066666667|	0.9009|
+54|	maxabsscaler,	lightgbmclassifier|	0.133333333|	0.9007|
+48|	sparsenormalizer,	xgboostclassifier|	0.133333333|	0.8999|
+0|	maxabsscaler,	lightgbmclassifier|	0.066666667|	0.8999|
+
+
+
+According to the best performing model, top 4 features (columns) with the largest importance were: nr.employed, cons.conf.idx, eurobor3m, contact_cellular
 
 ![image](https://user-images.githubusercontent.com/77756713/125700079-0832e013-d41e-4041-9fcd-0499aeee78c3.png)
 
